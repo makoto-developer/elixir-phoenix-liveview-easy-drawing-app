@@ -1,0 +1,90 @@
+<div class="canvas-container">
+    <div class="toolbox">
+        <div class="tools">
+            <button phx-click="change-tool" phx-value-tool="pen" class={"tool-btn #{if @current_tool == "pen", do: "active"}"}>
+            <i class="fas fa-pen"></i>
+            </button>
+            <button phx-click="change-tool" phx-value-tool="brush" class={"tool-btn #{if @current_tool == "brush", do: "active"}"}>
+            <i class="fas fa-paint-brush"></i>
+            </button>
+            <button phx-click="change-tool" phx-value-tool="eraser" class={"tool-btn #{if @current_tool == "eraser", do: "active"}"}>
+            <i class="fas fa-eraser"></i>
+            </button>
+            <button phx-click="change-tool" phx-value-tool="stamp" class={"tool-btn #{if @current_tool == "stamp", do: "active"}"}>
+            <i class="fas fa-stamp"></i>
+            </button>
+        </div>
+
+        <div class="stamp-selector" style="margin-top: 10px; display: flex; gap: 10px;">
+            <button phx-click="change-tool" phx-value-tool="stamp" data-stamp-type="star" class="stamp-btn">
+                <img src="/images/stamps/star.svg" alt="Star" width="24" height="24" />
+            </button>
+            <button phx-click="change-tool" phx-value-tool="stamp" data-stamp-type="heart" class="stamp-btn">
+                <img src="/images/stamps/heart.svg" alt="Heart" width="24" height="24" />
+            </button>
+            <button phx-click="change-tool" phx-value-tool="stamp" data-stamp-type="smile" class="stamp-btn">
+                <img src="/images/stamps/smile.svg" alt="Smile" width="24" height="24" />
+            </button>
+            <button phx-click="change-tool" phx-value-tool="stamp" data-stamp-type="check" class="stamp-btn">
+                <img src="/images/stamps/check.svg" alt="Check" width="24" height="24" />
+            </button>
+        </div>
+
+        <div class="colors">
+            <form phx-change="change-color" class="color-form">
+                <input type="color" value={@current_color} name="color" />
+            </form>
+        </div>
+
+        <div class="size-control">
+            <label>ブラシサイズ: <span id="size-display"><%= @brush_size %></span></label>
+            <form phx-change="change-size" class="size-form">
+                <input type="range" min="1" max="50" value={@brush_size} name="size" />
+            </form>
+        </div>
+
+        <div class="actions">
+            <button phx-click="clear-canvas" class="clear-btn">キャンバスをクリア</button>
+        </div>
+    </div>
+
+    <div id="canvas-wrapper"
+         phx-hook="CanvasHook"
+         data-tool={@current_tool}
+         data-color={@current_color}
+         data-size={@brush_size}
+         data-user-id={@user_id}>
+        <canvas id="drawing-canvas" width="2000" height="2000" style="width: 100%; max-width: 2000px; height: auto;"></canvas>
+    </div>
+</div>
+
+<div id="current-users">
+    <p>ユーザーID: <span id="user-id"><%= @user_id %></span></p>
+    <p>現在のツール: <span id="current-tool"><%= @current_tool %></span></p>
+    <p>現在の色: <span id="current-color" style={"background-color: #{@current_color}; display: inline-block; width: 20px; height: 20px; vertical-align: middle;"}></span> <span><%= @current_color %></span></p>
+    <p>アクション数: <span id="action-count"><%= length(@actions) %></span></p>
+    <p>接続状態: <span id="connection-status">接続中...</span></p>
+</div>
+
+<script type="text/javascript" id="canvas-data" data-actions={Jason.encode!(@actions)}></script>
+
+<script>
+    // WebSocket接続状態の監視
+    document.addEventListener("phx:connected", function() {
+        const statusEl = document.getElementById("connection-status");
+        if (statusEl) {
+            statusEl.textContent = "接続済み";
+            statusEl.style.color = "green";
+            console.log("LiveView WebSocket Connected");
+        }
+    });
+
+    document.addEventListener("phx:disconnected", function() {
+        const statusEl = document.getElementById("connection-status");
+        if (statusEl) {
+            statusEl.textContent = "切断されました";
+            statusEl.style.color = "red";
+            console.log("LiveView WebSocket Disconnected");
+        }
+    });
+</script>
