@@ -1,5 +1,9 @@
 # DrawingApp
 
+できたもの
+
+![preview.gif](./preview.gif)
+
 ## Requirements
 
 - asdf
